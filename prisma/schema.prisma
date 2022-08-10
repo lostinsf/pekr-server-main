@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+model Categories {
+  value      String             @id @db.VarChar(255)
+  categories Classes_Category[]
+}
+
+model Owners {
+  id               BigInt    @id @default(autoincrement())
+  user_id          String    @unique @db.VarChar(255)
+  nick_name        String    @db.VarChar(255)
+  avatar_domain    String    @db.VarChar(255)
+  avatar_blob_name String    @db.VarChar(255)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @default(now())
+  classes          Classes[]
+}
+
+model Classes {
+  id                String             @id @db.VarChar(255)
+  owner_id          BigInt
+  title             String             @db.VarChar(255)
+  about             String             @db.Text
+  what_learn        String             @db.Text
+  profile_domain    String             @db.VarChar(255)
+  profile_blob_name String             @db.VarChar(255)
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @default(now())
+  categories        Classes_Category[]
+  sessions          Classes_Sessions[]
+  owner             Owners             @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+}
+
+model Classes_Category {
+  id             BigInt     @id @default(autoincrement())
+  class_id       String     @db.VarChar(255)
+  category_value String     @db.VarChar(255)
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @default(now())
+  category       Categories @relation(fields: [category_value], references: [value], onDelete: Cascade)
+  class          Classes    @relation(fields: [class_id], references: [id], onDelete: Cascade)
+}
+
+model Classes_Sessions {
+  id         String   @id @db.VarChar(255)
+  class_id   String   @db.VarChar(255)
+  start_date DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  class      Classes  @relation(fields: [class_id], references: [id], onDelete: Cascade)
+}
